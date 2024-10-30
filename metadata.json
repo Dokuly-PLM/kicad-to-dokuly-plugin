@@ -27,8 +27,8 @@
             "version": "1.0.0",
             "status": "stable",
             "kicad_version": "8.0.0",
-            "download_url": "https://github.com/Dokuly-PLM/kicad-to-dokuly-plugin/archive/refs/tags/v1.0.0.zip",
-            "download_sha256": "e65a6d44449f33d81cdc08749b37d4f1cca17a0fd99d454ae13447da0c63f603",
+            "download_url": "https://github.com/Dokuly-PLM/kicad-to-dokuly-plugin/archive/refs/heads/master.zip",
+            "download_sha256": "76a9064c3ff8ea988b9e222283408ec1ff2b8c552591c36b762c59cc8b21adb1",
             "download_size": 26685
         }
     ]
