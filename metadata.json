@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "author": "Gaute Wierød Rønning",
     "license": "GPL-3.0",
-    "repository": "https://github.com/Dokuly-PLM/kicad-to-dokuly-plugin",
+    "repository": "https://github.com/Dokuly-PLM/kicad-to-dokuly-plugin/archive/refs/tags/v1.0.0.zip",
     "dependencies": [],
     "kicad_version": ">=8.0.0"
   }
