@@ -3,7 +3,9 @@
     "name": "KiCad to dokuly",
     "description": "File generator for dokuly",
     "description_full": "Generates production files such as Gerber, Drill, Schematic, and uploads them to dokuly",
+    "identifier": "kicad-to-dokuly-plugin",
     "version": "1.0.0",
+    "type": "plugin",
     "author": {
         "name": "Gaute Wierød Rønning",
         "contact": {
