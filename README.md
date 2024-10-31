@@ -23,6 +23,7 @@ This plugin allows you to easily integrate KiCad with [dokuly](https://dokuly.co
 - [Troubleshooting](#troubleshooting)
 - [Support](#support)
 - [License](#license)
+- [Additional Tips](#additional-tips)
 
 ---
 
@@ -191,7 +192,7 @@ The plugin relies on specific board variables to identify the PCBA and revision.
   - Open your PCB design in KiCad's PCB Editor.
 
 - **Access Board Setup:**
-  - Go to `File > Board Setup` or press `E` while hovering over the board.
+  - Go to `File > Board Setup`.
 
 - **Set Board Variables:**
   - Navigate to the **Text Variables** section.
@@ -283,8 +284,13 @@ This project is licensed under the GPL-3.0 License.
 
 - **KiCad Variables:**
   - Double-check that `PCBA_NUMBER` and `PART_REVISION` are correctly set in your KiCad board variables. These are crucial for the plugin to function properly.
+  - Based on what drawing sheet template you are using, other board variables can be set in the same place like **AUTHOR** or **PCBA_NAME**.
 
 - **Testing:**
   - After setting up, perform a test upload with a sample PCB to ensure that all configurations are correct and the upload process works as expected.
+
+- **Plugin**:
+  - After making a change to the plugin folder, e.g. changing the folder name, configuring the .env variables or something similar, remember to press "Refresh plugins"
+  under `Tools > External plugins`
 
 Feel free to customize the README further to fit any additional details or specific instructions related to your plugin version or usage scenarios.

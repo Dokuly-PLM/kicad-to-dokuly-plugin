@@ -844,6 +844,8 @@ class KiCadTool(wx.Frame):
                 elif key == 'REPLACE_FILES':
                     if value.lower() == 'true':
                         self.replace_files = True
+                elif key == 'URL_PROTOCOL':
+                    self.url_protocol = value
 
 
 
