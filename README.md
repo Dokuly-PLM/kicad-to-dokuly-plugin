@@ -52,6 +52,8 @@ This plugin allows you to easily integrate KiCad with [dokuly](https://dokuly.co
      - **Windows:** `C:\Users\<YourUsername>\Documents\KiCad\8.0\scripting\plugins\`
      - **macOS:** `/Users/<YourUsername>/Documents/KiCad/8.0/scripting/plugins/`
      - **Linux:** `/home/<YourUsername>/Documents/KiCad/8.0/scripting/plugins/`
+    
+     - **NOTE**: After extracting, rename the folder from `kicad-to-dokuly-plugin-1.0.0` to `kicad-to-dokuly-plugin` to avoid issues with KiCad’s plugin directory structure.
 
 2. **Manual Installation via Git:**
 
