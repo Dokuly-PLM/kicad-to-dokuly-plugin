@@ -43,19 +43,28 @@ This plugin allows you to easily integrate KiCad with [dokuly](https://dokuly.co
 
 ## Installation
 
-1. **Install the Plugin via KiCad's Plugin Manager:**
+1. **Manual Installation via ZIP File:**
 
-   - Open KiCad.
-   - Navigate to `Tools` > `Plugin and Content Manager`.
-   - Search for the **KiCad to Dokuly** plugin, or:
-   - Install the plugin by entering the GitHub repository URL:
-     ```
-     https://github.com/Dokuly-PLM/kicad-to-dokuly-plugin
-     ```
+   - Download the latest version of the plugin as a ZIP file:
+     [Download v1.0.0](https://github.com/Dokuly-PLM/kicad-to-dokuly-plugin/archive/refs/tags/v1.0.0.zip)
+   - Extract the ZIP file contents to your KiCad plugins directory:
 
-2. **Verify Installation:**
+     - **Windows:** `C:\Users\<YourUsername>\Documents\KiCad\8.0\scripting\plugins\`
+     - **macOS:** `/Users/<YourUsername>/Documents/KiCad/8.0/scripting/plugins/`
+     - **Linux:** `/home/<YourUsername>/Documents/KiCad/8.0/scripting/plugins/`
+
+2. **Manual Installation via Git:**
+
+   - Alternatively, clone the repository directly into the plugins directory:
+     ```bash
+     git clone https://github.com/Dokuly-PLM/kicad-to-dokuly-plugin.git <YourPluginDirectory>
+     ```
+   - Ensure the `<YourPluginDirectory>` matches the path of your KiCad plugins directory (as listed above).
+
+3. **Verify Installation:**
 
    - After installation, you should see the Dokuly cloud icon in the KiCad toolbar.
+
 
 ## Configuration
 
