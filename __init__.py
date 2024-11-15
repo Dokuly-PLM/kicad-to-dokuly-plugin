@@ -10,6 +10,7 @@ import pcbnew  # Import KiCad's PCB module
 import wx
 import traceback
 
+
 class KiCadTool(wx.Frame):
     def __init__(self, parent, title):
         super(KiCadTool, self).__init__(parent, title=title, size=(600, 500))
@@ -27,7 +28,7 @@ class KiCadTool(wx.Frame):
         self.dokuly_url = ""
         self.url_protocol = ""
         self.dokuly_base_api_url = ""
-        self.overwrite_files = False
+        self.overwrite_files = True
 
         self.pcba_pk = -1
 
@@ -38,7 +39,7 @@ class KiCadTool(wx.Frame):
         self.file_upload_pcba_url = ""
         self.bom_upload_url = ""
         self.thumbnail_upload_url = ""
-        
+
         self.temp_file_path = None
 
         self.initUI()
@@ -51,7 +52,6 @@ class KiCadTool(wx.Frame):
         self.bom_upload_url = f"{self.dokuly_base_api_url}/api/v1/pcbas/bom/{self.pcba_pk}/"
         self.thumbnail_upload_url = f"{self.dokuly_base_api_url}/api/v1/pcbas/thumbnail/{self.pcba_pk}/"
         self.fetch_pcba_url = f"{self.dokuly_base_api_url}/api/v1/pcbas/fetchByPartNumberRevision/"
-
 
     def locate_kicad_cli(self):
         # Attempt to locate kicad-cli in common installation paths
@@ -66,7 +66,6 @@ class KiCadTool(wx.Frame):
             return default_path
         else:
             return 'kicad-cli'  # Assumes kicad-cli is in PATH
-        
 
     def initUI(self):
         panel = wx.Panel(self)
@@ -75,7 +74,8 @@ class KiCadTool(wx.Frame):
 
         # Label to show selected PCB file
         self.label = wx.StaticText(panel, label='No PCB file selected.')
-        vbox.Add(self.label, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
+        vbox.Add(self.label, flag=wx.EXPAND | wx.LEFT |
+                 wx.RIGHT | wx.TOP, border=10)
 
         # Display PCBA_NUMBER and REVISION
         name_box = wx.BoxSizer(wx.HORIZONTAL)
@@ -83,23 +83,28 @@ class KiCadTool(wx.Frame):
         self.pcba_number_value = wx.StaticText(panel, label='')
         name_box.Add(name_label, flag=wx.RIGHT, border=8)
         name_box.Add(self.pcba_number_value, proportion=1)
-        vbox.Add(name_box, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
+        vbox.Add(name_box, flag=wx.EXPAND | wx.LEFT |
+                 wx.RIGHT | wx.TOP, border=10)
 
         revision_box = wx.BoxSizer(wx.HORIZONTAL)
         revision_label = wx.StaticText(panel, label='REVISION:')
         self.revision_value = wx.StaticText(panel, label='')
         revision_box.Add(revision_label, flag=wx.RIGHT, border=8)
         revision_box.Add(self.revision_value, proportion=1)
-        vbox.Add(revision_box, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
+        vbox.Add(revision_box, flag=wx.EXPAND |
+                 wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
        # Button to Sync PCBA to dokuly
         sync_button = wx.Button(panel, label='Push PCBA to dokuly')
         sync_button.Bind(wx.EVT_BUTTON, self.push_pcba_to_dokuly)
-        vbox.Add(sync_button, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
+        vbox.Add(sync_button, flag=wx.EXPAND |
+                 wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
         # Text area to display output
-        self.output_text = wx.TextCtrl(panel, style=wx.TE_MULTILINE | wx.TE_READONLY)
-        vbox.Add(self.output_text, proportion=1, flag=wx.EXPAND | wx.ALL, border=10)
+        self.output_text = wx.TextCtrl(
+            panel, style=wx.TE_MULTILINE | wx.TE_READONLY)
+        vbox.Add(self.output_text, proportion=1,
+                 flag=wx.EXPAND | wx.ALL, border=10)
 
         panel.SetSizer(vbox)
 
@@ -120,11 +125,9 @@ class KiCadTool(wx.Frame):
 
         self.generate_temp_file_folder()
 
-
     def print_output(self, message):
         self.output_text.AppendText(message)
 
-    
     def generate_temp_file_folder(self):
         plugin_dir = os.path.dirname(__file__)
         temp_folder = os.path.join(plugin_dir, 'temp')
@@ -133,28 +136,31 @@ class KiCadTool(wx.Frame):
 
         self.temp_file_path = temp_folder
 
-
     def get_current_pcb_file(self):
         board = pcbnew.GetBoard()
         if board is not None:
             self.pcb_file = board.GetFileName()
             if self.pcb_file:
-                self.label.SetLabel(f'Selected PCB file: {os.path.basename(self.pcb_file)}')
+                self.label.SetLabel(
+                    f'Selected PCB file: {os.path.basename(self.pcb_file)}')
 
                 # try to find the schematic file
                 project_dir = os.path.dirname(self.pcb_file)
-                project_name = os.path.splitext(os.path.basename(self.pcb_file))[0]
-                self.schematic_file = os.path.join(project_dir, f"{project_name}.kicad_sch")
+                project_name = os.path.splitext(
+                    os.path.basename(self.pcb_file))[0]
+                self.schematic_file = os.path.join(
+                    project_dir, f"{project_name}.kicad_sch")
                 if os.path.exists(self.schematic_file):
-                    self.print_output(f"Schematic file found: {self.schematic_file}\n")
+                    self.print_output(
+                        f"Schematic file found: {self.schematic_file}\n")
                 else:
-                    self.print_output(f"Schematic file not found: {self.schematic_file}\n")
+                    self.print_output(
+                        f"Schematic file not found: {self.schematic_file}\n")
                     self.schematic_file = ''  # reset if not found
             else:
                 self.label.SetLabel('No PCB file selected.')
         else:
             self.label.SetLabel('No PCB file selected.')
-            
 
     def populate_board_variables(self):
         board = pcbnew.GetBoard()
@@ -167,30 +173,35 @@ class KiCadTool(wx.Frame):
 
             self.pcba_number_value.SetLabel(self.pcba_number)
             self.revision_value.SetLabel(self.revision)
-        
+
         else:
             self.print_output('\nUnable to access board variables.\n')
 
-
     def push_pcba_to_dokuly(self, event):
         if not self.pcba_number or not self.revision:
-            self.print_output('\nPCBA_NUMBER or REVISION is not set in board variables.\n')
+            self.print_output(
+                '\nPCBA_NUMBER or REVISION is not set in board variables.\n')
             return
-        
+
         if not self.dokuly_api_key:
-            self.print_output('\nError: DOKULY_API_KEY environment variable is not set.\n')
+            self.print_output(
+                '\nError: DOKULY_API_KEY environment variable is not set.\n')
             return
-        
-        self.print_output('\n\nPushing PCBA to dokuly... PLEASE WAIT UNTIL UPLOAD IS COMPLETED; DO NOT CLOSE OR RETRY.\n\n')
-        
+
+        self.print_output(
+            '\n\nPushing PCBA to dokuly... PLEASE WAIT UNTIL UPLOAD IS COMPLETED; DO NOT CLOSE OR RETRY.\n\n')
+
         try:
             pcb_front_pdf_file_path, pcb_back_pdf_file_path = self.generate_pcb_pdf()
             if pcb_front_pdf_file_path and pcb_back_pdf_file_path:
-                self.upload_pcb_pdf(pcb_front_pdf_file_path, pcb_back_pdf_file_path)
+                self.upload_pcb_pdf(pcb_front_pdf_file_path,
+                                    pcb_back_pdf_file_path)
             else:
-                self.print_output('\nFailed to generate PCB PDF. No path found.\n')
+                self.print_output(
+                    '\nFailed to generate PCB PDF. No path found.\n')
         except Exception as e:
-            self.print_output('\nAn error occurred during PCB PDF generation.\n')
+            self.print_output(
+                '\nAn error occurred during PCB PDF generation.\n')
             self.print_output(f"\nError: {str(e)}\n")
 
         try:
@@ -198,9 +209,11 @@ class KiCadTool(wx.Frame):
             if gerber_and_drill_file_path:
                 self.upload_gerber_and_drill_files(gerber_and_drill_file_path)
             else:
-                self.print_output('\nFailed to generate Gerber and drill files. No path found.\n')
+                self.print_output(
+                    '\nFailed to generate Gerber and drill files. No path found.\n')
         except Exception as e:
-            self.print_output('\nAn error occurred during Gerber and drill file generation.\n')
+            self.print_output(
+                '\nAn error occurred during Gerber and drill file generation.\n')
             self.print_output(f"\nError: {str(e)}\n")
 
         try:
@@ -208,9 +221,11 @@ class KiCadTool(wx.Frame):
             if schematic_file_path:
                 self.upload_schematic_pdf(schematic_file_path)
             else:
-                self.print_output('\nFailed to generate schematic PDF. No path found.\n')
+                self.print_output(
+                    '\nFailed to generate schematic PDF. No path found.\n')
         except Exception as e:
-            self.print_output('\nAn error occurred during schematic PDF generation.\n')
+            self.print_output(
+                '\nAn error occurred during schematic PDF generation.\n')
             self.print_output(f"\nError: {str(e)}\n")
 
         try:
@@ -218,9 +233,11 @@ class KiCadTool(wx.Frame):
             if bom_path:
                 self.upload_bom_csv(bom_path)
             else:
-                self.print_output('\nFailed to generate BOM CSV. No path found.\n')
+                self.print_output(
+                    '\nFailed to generate BOM CSV. No path found.\n')
         except Exception as e:
-            self.print_output('\nAn error occurred during BOM CSV generation.\n')
+            self.print_output(
+                '\nAn error occurred during BOM CSV generation.\n')
             self.print_output(f"\nError: {str(e)}\n")
 
         try:
@@ -228,12 +245,15 @@ class KiCadTool(wx.Frame):
             if zipped_position_files:
                 self.upload_position_file(zipped_position_files)
             else:
-                self.print_output('\nFailed to generate position file. No path found.\n')
+                self.print_output(
+                    '\nFailed to generate position file. No path found.\n')
         except Exception as e:
-            self.print_output('\nAn error occurred during position file generation.\n')
+            self.print_output(
+                '\nAn error occurred during position file generation.\n')
             self.print_output(f"\nError: {str(e)}\n")
 
-        self.print_output('\n\n\nUpload completed! Please check the output for any errors.\n\n\n')
+        self.print_output(
+            '\n\n\nUpload completed! Please check the output for any errors.\n\n\n')
 
         # Currently not used, waiting for KiCad to add support for 3D model export jpg/png
         # svg_file_path = self.generate_svg_thumbnail()
@@ -241,7 +261,7 @@ class KiCadTool(wx.Frame):
         #     self.upload_svg_thumbnail(svg_file_path)
         # else:
         #     self.print_output('\nFailed to generate SVG thumbnail. No path found.\n')
-       
+
     def generate_position_file(self):
         if not self.pcb_file:
             self.print_output('\nPlease open a PCB file first.\n')
@@ -254,8 +274,10 @@ class KiCadTool(wx.Frame):
             if not self.temp_file_path:
                 self.generate_temp_file_folder()
 
-            output_pos_front = os.path.join(self.temp_file_path, 'position_front.pos')
-            output_pos_back = os.path.join(self.temp_file_path, 'position_back.pos')
+            output_pos_front = os.path.join(
+                self.temp_file_path, 'position_front.pos')
+            output_pos_back = os.path.join(
+                self.temp_file_path, 'position_back.pos')
 
             command_front = [
                 self.kicad_cli, 'pcb', 'export', 'pos',
@@ -299,15 +321,18 @@ class KiCadTool(wx.Frame):
                 errors='replace'
             )
 
-            zip_file_name = os.path.join(self.temp_file_path, 'position_files.zip')
+            zip_file_name = os.path.join(
+                self.temp_file_path, 'position_files.zip')
             with zipfile.ZipFile(zip_file_name, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                zipf.write(output_pos_front, os.path.basename(output_pos_front))
+                zipf.write(output_pos_front,
+                           os.path.basename(output_pos_front))
                 zipf.write(output_pos_back, os.path.basename(output_pos_back))
 
             os.remove(output_pos_front)
             os.remove(output_pos_back)
-            
-            self.print_output('\nPosition files generated and zipped successfully.\n')
+
+            self.print_output(
+                '\nPosition files generated and zipped successfully.\n')
             self.print_output(f'\nZIP file saved to: {zip_file_name}\n')
 
             return zip_file_name
@@ -316,23 +341,23 @@ class KiCadTool(wx.Frame):
             self.print_output(f"\nError output:\n{str(e.stderr)}\n")
             return None
         except Exception as e:
-            self.print_output('\nAn unexpected error occurred during position file generation.\n')
+            self.print_output(
+                '\nAn unexpected error occurred during position file generation.\n')
             self.print_output(f"\nError: {str(e)}\n")
             self.print_output(f"\nTraceback:\n{traceback.format_exc()}\n")
             return None
-
 
     def upload_position_file(self, position_file_path):
         if not self.pcba_pk:
             self.print_output('PCBA item ID is not available.\n')
             return
-        
+
         display_name = f"{self.pcba_number}{self.revision}_position"
         file_type = 'position'
-        gerber_files = False  
+        gerber_files = False
 
-        self.upload_file_to_pcba(position_file_path, display_name, file_type, gerber_files)
-
+        self.upload_file_to_pcba(
+            position_file_path, display_name, file_type, gerber_files)
 
     def generate_schematic_pdf(self):
         if not self.schematic_file:
@@ -364,21 +389,21 @@ class KiCadTool(wx.Frame):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                errors='replace'  
+                errors='replace'
             )
 
             self.print_output('\nSchematic PDF generated successfully.\n')
             return output_pdf
         except subprocess.CalledProcessError as e:
             self.print_output('\nSchematic PDF generation failed.\n')
-            self.print_output('\n' + str(e.stderr)+ '\n')
+            self.print_output('\n' + str(e.stderr) + '\n')
             return None
         except Exception as e:
-            self.print_output('\nAn unexpected error occurred during schematic PDF generation.')
+            self.print_output(
+                '\nAn unexpected error occurred during schematic PDF generation.')
             self.print_output(f"\nError: {str(e)}")
             self.print_output(f"\nTraceback:\n{traceback.format_exc()}")
             return None
-    
 
     def upload_schematic_pdf(self, schematic_pdf_file_path):
         if not self.pcba_pk:
@@ -389,8 +414,8 @@ class KiCadTool(wx.Frame):
         file_type = 'schematic'
         gerber_files = False
 
-        self.upload_file_to_pcba(schematic_pdf_file_path, display_name, file_type, gerber_files)
-
+        self.upload_file_to_pcba(
+            schematic_pdf_file_path, display_name, file_type, gerber_files)
 
     def generate_pcb_pdf(self):
         if not self.pcb_file:
@@ -407,7 +432,8 @@ class KiCadTool(wx.Frame):
             theme_path = self.theme_path
 
             if not os.path.exists(drawing_sheet_path):
-                self.print_output(f'\nDrawing sheet not found at {drawing_sheet_path}\n')
+                self.print_output(
+                    f'\nDrawing sheet not found at {drawing_sheet_path}\n')
                 return None
 
             if not os.path.exists(theme_path):
@@ -415,7 +441,8 @@ class KiCadTool(wx.Frame):
                 return None
 
             # First PDF: Edge.Cuts and F.Fab
-            output_pdf_front = os.path.join(self.temp_file_path, 'pcb_front.pdf')
+            output_pdf_front = os.path.join(
+                self.temp_file_path, 'pcb_front.pdf')
 
             command_front = [
                 self.kicad_cli, 'pcb', 'export', 'pdf',
@@ -423,7 +450,7 @@ class KiCadTool(wx.Frame):
                 '--layers', 'Edge.Cuts,F.Fab',
                 '--drawing-sheet', drawing_sheet_path,
                 '--theme', theme_path,
-                '--include-border-title', 
+                '--include-border-title',
                 self.pcb_file
             ]
 
@@ -447,7 +474,7 @@ class KiCadTool(wx.Frame):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                errors='replace'  
+                errors='replace'
             )
 
             result_back = subprocess.run(
@@ -456,45 +483,45 @@ class KiCadTool(wx.Frame):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                errors='replace'  
+                errors='replace'
             )
 
             return output_pdf_front, output_pdf_back
-        
+
         except subprocess.CalledProcessError as e:
             self.print_output('\nSVG generation failed.')
             self.print_output(f"\nError output:\n{str(e.stderr)}")
             return None
         except Exception as e:
-            self.print_output('\nAn unexpected error occurred during SVG generation.')
+            self.print_output(
+                '\nAn unexpected error occurred during SVG generation.')
             self.print_output(f"\nError: {str(e)}")
             self.print_output(f"\nTraceback:\n{traceback.format_exc()}")
             return None
 
-    
     def upload_pcb_pdf(self, pcb_front_pdf_file_path, pcb_back_pdf_file_path):
         if not self.pcba_pk:
             self.print_output('\nPCBA item ID is not available.\n')
             return
-        
+
         display_name_front = f"{self.pcba_number}{self.revision}_pcb_front"
         file_type_front = 'pcb_front'
-        gerber_files = False  
+        gerber_files = False
 
-        self.upload_file_to_pcba(pcb_front_pdf_file_path, display_name_front, file_type_front, gerber_files)
+        self.upload_file_to_pcba(
+            pcb_front_pdf_file_path, display_name_front, file_type_front, gerber_files)
 
         display_name_back = f"{self.pcba_number}{self.revision}_pcb_back"
         file_type_back = 'pcb_back'
 
-        self.upload_file_to_pcba(pcb_back_pdf_file_path, display_name_back, file_type_back, gerber_files)
-
-    
+        self.upload_file_to_pcba(
+            pcb_back_pdf_file_path, display_name_back, file_type_back, gerber_files)
 
     def generate_bom_csv(self):
         if not self.schematic_file:
             self.print_output('\nPlease open a PCB file first.')
             return None
-        
+
         self.print_output('\nGenerating BOM CSV...\n')
         wx.Yield()  # Update GUI
 
@@ -506,7 +533,7 @@ class KiCadTool(wx.Frame):
             command = [
                 self.kicad_cli, 'sch', 'export', 'bom',
                 "--output", output_csv, "--fields", "Reference,MPN,${QUANTITY},${DNP}",
-                "--string-delimiter", "\"", 
+                "--string-delimiter", "\"",
                 "--group-by", "MPN,${DNP}",
                 self.schematic_file
             ]
@@ -521,17 +548,17 @@ class KiCadTool(wx.Frame):
             )
 
             return output_csv
-        
+
         except subprocess.CalledProcessError as e:
             self.print_output('\nSVG generation failed.')
             self.print_output(f"\nError output:\n{str(e.stderr)}")
             return None
         except Exception as e:
-            self.print_output('\nAn unexpected error occurred during BOM generation.')
+            self.print_output(
+                '\nAn unexpected error occurred during BOM generation.')
             self.print_output(f"\nError: {str(e)}")
             self.print_output(f"\nTraceback:\n{traceback.format_exc()}")
             return None
-    
 
     def upload_bom_csv(self, bom_csv_file_path):
         if not self.pcba_pk:
@@ -547,32 +574,35 @@ class KiCadTool(wx.Frame):
 
         with open(bom_csv_file_path, 'rb') as csv_file:
             files = {'file': csv_file}
-            data = {'app': "pcbas", "display_name": self.pcba_number + "_bom", "item_id": self.pcba_pk}
+            data = {'app': "pcbas", "display_name": self.pcba_number +
+                    "_bom", "item_id": self.pcba_pk}
             try:
                 if "localhost" in self.dokuly_base_api_url:
                     headers['Host'] = f"{self.dokuly_tenant}.dokuly.localhost"
 
-                response = requests.post(self.bom_upload_url, headers=headers, files=files, data=data)
+                response = requests.post(
+                    self.bom_upload_url, headers=headers, files=files, data=data)
 
                 try:
                     status = response.status_code
-                    self.print_output('\n' + str(status) + '\n')  
+                    self.print_output('\n' + str(status) + '\n')
                 except Exception as e:
                     self.print_output(f"Error getting status code: {e}")
 
                 if response.status_code in [200, 201]:
                     self.print_output('\nBOM CSV uploaded successfully.\n')
                 else:
-                    self.print_output(f"\nFailed to upload BOM CSV. Status code: {response.status_code}\n")
+                    self.print_output(
+                        f"\nFailed to upload BOM CSV. Status code: {response.status_code}\n")
                     self.print_output(f"\nResponse: {response.text}\n")
             except requests.exceptions.RequestException as e:
-                self.print_output(f"\nAn error occurred during upload: {str(e)}\n")
-    
+                self.print_output(
+                    f"\nAn error occurred during upload: {str(e)}\n")
+
         try:
             os.remove(bom_csv_file_path)
         except Exception as e:
             self.print_output(f"\nFailed to delete {bom_csv_file_path}: {e}\n")
-    
 
     def generate_svg_thumbnail(self):
         if not self.pcb_file:
@@ -592,8 +622,8 @@ class KiCadTool(wx.Frame):
             command = [
                 self.kicad_cli, 'pcb', 'export', 'svg', self.pcb_file,
                 '--output', output_svg,
-                '--layers', 'F.Cu,F.SilkS',  
-                '--page-size-mode', '2',      
+                '--layers', 'F.Cu,F.SilkS',
+                '--page-size-mode', '2',
                 '--exclude-drawing-sheet'
             ]
 
@@ -613,12 +643,12 @@ class KiCadTool(wx.Frame):
             self.print_output(f"Error output:\n{str(e.stderr)}")
             return None
         except Exception as e:
-            self.print_output('\nAn unexpected error occurred during SVG generation.')
+            self.print_output(
+                '\nAn unexpected error occurred during SVG generation.')
             self.print_output(f"Error: {str(e)}")
             self.print_output(f"Traceback:\n{traceback.format_exc()}")
             return None
-        
-        
+
     def upload_svg_thumbnail(self, svg_file_path):
         if not self.pcba_pk:
             self.print_output('\nPCBA item ID is not available.\n')
@@ -633,28 +663,32 @@ class KiCadTool(wx.Frame):
 
         with open(svg_file_path, 'rb') as svg_file:
             files = {'file': svg_file}
-            data = {'app': "pcbas", "display_name": self.pcba_number + "_thumbnail", "item_id": self.pcba_pk} 
+            data = {'app': "pcbas", "display_name": self.pcba_number +
+                    "_thumbnail", "item_id": self.pcba_pk}
             try:
                 if "localhost" in self.dokuly_base_api_url:
                     headers['Host'] = f"{self.dokuly_tenant}.dokuly.localhost"
-                
+
                 # When using both files and data we need to send it as data and not json in requests
-                response = requests.post(self.thumbnail_upload_url, headers=headers, files=files, data=data)
+                response = requests.post(
+                    self.thumbnail_upload_url, headers=headers, files=files, data=data)
 
                 if response.status_code in [200, 201]:
-                    self.print_output('\nSVG thumbnail uploaded successfully.\n')
+                    self.print_output(
+                        '\nSVG thumbnail uploaded successfully.\n')
                 else:
-                    self.print_output(f"Failed to upload SVG thumbnail. Status code: {response.status_code}\n")
+                    self.print_output(
+                        f"Failed to upload SVG thumbnail. Status code: {response.status_code}\n")
                     self.print_output(f"Response: {response.text}\n")
             except requests.exceptions.RequestException as e:
-                self.print_output(f"An error occurred during upload: {str(e)}\n")
+                self.print_output(
+                    f"An error occurred during upload: {str(e)}\n")
 
         try:
             os.remove(svg_file_path)  # Remove the file after upload
         except Exception as e:
             self.print_output(f"Failed to delete {svg_file_path}: {e}\n")
 
-    
     def fetch_pcba_item(self):
         headers = {
             "Content-Type": "application/json",
@@ -674,21 +708,24 @@ class KiCadTool(wx.Frame):
             if "localhost" in self.dokuly_base_api_url:
                 headers['Host'] = f"{self.dokuly_tenant}.dokuly.localhost"
 
-            response = requests.put(self.fetch_pcba_url, json=data, headers=headers)
+            response = requests.put(
+                self.fetch_pcba_url, json=data, headers=headers)
 
             if response.status_code == 200:
                 pcba_item = response.json()
                 self.pcba_pk = pcba_item['id']
                 self.update_pcba_urls()  # Update URLs now that pcba_pk is known
-                self.print_output(f"\nFetched PCBA item with ID: {self.pcba_pk} and P/N {pcba_item.get('part_number')}{pcba_item.get('revision')}\n")
+                self.print_output(
+                    f"\nFetched PCBA item with ID: {self.pcba_pk} and P/N {pcba_item.get('part_number')}{pcba_item.get('revision')}\n")
             else:
-                self.print_output(f"\nFailed to fetch PCBA item. Status code: {str(response.status_code)}. Upload will be unavailable.\n")
+                self.print_output(
+                    f"\nFailed to fetch PCBA item. Status code: {str(response.status_code)}. Upload will be unavailable.\n")
                 self.pcba_pk = None
         except requests.exceptions.RequestException as e:
             self.print_output(f"\nAn error occurred: {str(e)}\n")
             self.pcba_pk = None
-            self.print_output("\n\nCOULD NOT FETCH PCBA FROM DOKULY; Please check your connection and relaunch the plugin!\n\n")
-
+            self.print_output(
+                "\n\nCOULD NOT FETCH PCBA FROM DOKULY; Please check your connection and relaunch the plugin!\n\n")
 
     def generate_gerber_and_drill_file(self):
         if not self.pcb_file:
@@ -696,7 +733,8 @@ class KiCadTool(wx.Frame):
             return
 
         if not self.pcba_number or not self.revision:
-            self.print_output('\nPCBA_NUMBER or REVISION is not set in board variables.\n')
+            self.print_output(
+                '\nPCBA_NUMBER or REVISION is not set in board variables.\n')
             return
 
         self.print_output('\nGenerating Gerber and drill files...\n')
@@ -713,7 +751,8 @@ class KiCadTool(wx.Frame):
 
             # Generate Gerber files
             subprocess.run(
-                [self.kicad_cli, 'pcb', 'export', 'gerbers', self.pcb_file, '--output', gerber_dir],
+                [self.kicad_cli, 'pcb', 'export', 'gerbers',
+                    self.pcb_file, '--output', gerber_dir, '--no-x2', '--no-protel-ext'],
                 check=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -722,21 +761,24 @@ class KiCadTool(wx.Frame):
 
             # Generate Drill files
             subprocess.run(
-                [self.kicad_cli, 'pcb', 'export', 'drill', self.pcb_file, '--output', gerber_dir],
+                [self.kicad_cli, 'pcb', 'export', 'drill',
+                    self.pcb_file, '--output', gerber_dir],
                 check=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True
             )
 
-            zip_file_name = os.path.join(output_dir, f"{project_name}_Gerber.zip")
+            zip_file_name = os.path.join(
+                output_dir, f"{project_name}_Gerber.zip")
             with zipfile.ZipFile(zip_file_name, 'w', zipfile.ZIP_DEFLATED) as zipf:
                 for root, dirs, files in os.walk(gerber_dir):
                     for file in files:
                         file_path = os.path.join(root, file)
                         arcname = os.path.relpath(file_path, gerber_dir)
                         zipf.write(file_path, arcname)
-            self.print_output('\nGerber and drill files generated and zipped successfully.\n')
+            self.print_output(
+                '\nGerber and drill files generated and zipped successfully.\n')
             self.print_output(f'\nZIP file saved to: {zip_file_name}\n')
 
             shutil.rmtree(gerber_dir)
@@ -751,18 +793,17 @@ class KiCadTool(wx.Frame):
             self.print_output('\n' + str(e) + '\n')
             return None
 
-
     def upload_gerber_and_drill_files(self, gerber_and_drill_file_path):
         if not self.pcba_pk:
             self.print_output('PCBA item ID is not available.\n')
             return
-        
+
         display_name = f"{self.pcba_number}{self.revision}_gerber"
         file_type = 'gerber'
-        gerber_files = True  
+        gerber_files = True
 
-        self.upload_file_to_pcba(gerber_and_drill_file_path, display_name, file_type, gerber_files)
-
+        self.upload_file_to_pcba(
+            gerber_and_drill_file_path, display_name, file_type, gerber_files)
 
     def upload_file_to_pcba(self, file_path, display_name, file_type, gerber_files):
         headers = {
@@ -774,45 +815,48 @@ class KiCadTool(wx.Frame):
 
         with open(file_path, 'rb') as file_to_upload:
             files = {'file': file_to_upload}
-            data = {'app': "pcbas", "display_name": display_name, 
+            data = {'app': "pcbas", "display_name": display_name,
                     "item_id": self.pcba_pk, "gerber": gerber_files, "replace_files": self.replace_files}
 
-            self.print_output(f"\nGerber files: {gerber_files} for file {display_name}\n")    
-        
+            self.print_output(
+                f"\nGerber files: {gerber_files} for file {display_name}\n")
+
             try:
                 if "localhost" in self.dokuly_base_api_url:
                     headers['Host'] = f"{self.dokuly_tenant}.dokuly.localhost"
 
-                response = requests.post(self.file_upload_pcba_url, headers=headers, files=files, data=data, timeout=60)
+                response = requests.post(
+                    self.file_upload_pcba_url, headers=headers, files=files, data=data, timeout=60)
 
                 try:
-                    self.print_output(str(response.status_code))  
+                    self.print_output(str(response.status_code))
                 except Exception as e:
                     self.print_output(f"Error getting status code: {str(e)}")
 
                 if response.status_code in [200, 201]:
-                    self.print_output(f'{display_name} uploaded successfully.\n')
+                    self.print_output(
+                        f'{display_name} uploaded successfully.\n')
                 else:
-                    self.print_output(f"Failed to upload {display_name}. Status code: {str(response.status_code)}\n")
+                    self.print_output(
+                        f"Failed to upload {display_name}. Status code: {str(response.status_code)}\n")
                     self.print_output(f"Response: {response.text}\n")
             except requests.exceptions.RequestException as e:
-                self.print_output(f"An error occurred during upload: {str(e)}\n")
+                self.print_output(
+                    f"An error occurred during upload: {str(e)}\n")
         try:
             os.remove(file_path)  # Remove the file after upload
         except Exception as e:
             self.print_output(f"Failed to delete {file_path}: {e}\n")
 
-
     def get_dokuly_base_api_url(self):
         if ("localhost" or "127.0.0.1") in self.dokuly_url:
             return f"http://{self.dokuly_url}"
         return f"{self.url_protocol}://{self.dokuly_tenant}.{self.dokuly_url}"
-    
 
     def load_env_file(self, env_path=".env"):
         """
         Load environment variables from a .env file.
-        
+
         Args:
             env_path (str): Path to the .env file. Defaults to ".env" in the current directory.
         """
@@ -822,7 +866,7 @@ class KiCadTool(wx.Frame):
             self.print_output(f".env file not found at {full_env_path}")
             self.print_output(f"Current working directory: {os.getcwd()}")
             return
-    
+
         with open(full_env_path) as f:
             for line in f:
                 line = line.strip()
@@ -846,7 +890,6 @@ class KiCadTool(wx.Frame):
                         self.replace_files = True
                 elif key == 'URL_PROTOCOL':
                     self.url_protocol = value
-
 
 
 # KiCad Plugin Class
@@ -895,5 +938,6 @@ def register_plugin():
 
     # Register the plugin
     KiCadToDokulyPlugin().register()
+
 
 register_plugin()
