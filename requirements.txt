@@ -1,0 +1,4 @@
+# KiCad to Dokuly Plugin Dependencies
+# These are typically included with KiCad, but listed here for reference
+
+requests>=2.25.0
